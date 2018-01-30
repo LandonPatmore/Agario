@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Enemy extends BaseEntity {
 
-    public Enemy(Vector2 screenPos) {
-        super(screenPos, 20);
+    public Enemy(Vector2 screenPos, String name) {
+        super(screenPos, 10, name);
         generateInitialMoveConstants();
     }
 
