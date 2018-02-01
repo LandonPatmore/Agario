@@ -79,13 +79,11 @@ public abstract class BaseEntity extends Circle {
     }
 
     public void depreciate() {
-        if (radius > 10) {
-            if (radius < 25) {
-                radius -= 0.002f;
-            } else if (radius < 50) {
-                radius -= 0.01f;
+        if (radius > 25) {
+            if (radius < 50) {
+                radius -= radius * 0.00001f;
             } else {
-                radius -= 0.030f;
+                radius -= radius * 0.00009f;
             }
         }
     }
