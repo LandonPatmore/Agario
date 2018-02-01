@@ -16,11 +16,11 @@ public class Enemy extends BaseEntity {
         moveConstantY = MathUtils.random(-1.5f, 1.5f);
     }
 
-    public void reverseX() {
+    private void reverseX() {
         setMoveConstantX(-moveConstantX);
     }
 
-    public void reverseY() {
+    private void reverseY() {
         setMoveConstantY(-moveConstantY);
     }
 
