@@ -8,6 +8,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -16,11 +18,11 @@ import com.badlogic.gdx.utils.Array;
 public class GameScreen implements Screen {
 
     // Entities
-    private final Array<Consumable> consumables = new Array<Consumable>();
-    private final Array<Enemy> enemies = new Array<Enemy>();
+    private final Array<Consumable> consumables = new Array<>();
+    private final Array<Enemy> enemies = new Array<>();
 
     // Players
-    private final Array<Player> players = new Array<Player>();
+    private final Array<Player> players = new Array<>();
 
     // Dimensions
     private final float H = Globals.height;
@@ -32,6 +34,10 @@ public class GameScreen implements Screen {
 
     // Renderer
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+    //Bitmap Font
+    private final BitmapFont test;
+    private final SpriteBatch batch;
 
     // Track amount of Entities that have existed
     private int enemyCount;
@@ -51,6 +57,8 @@ public class GameScreen implements Screen {
         generateConsumables();
         generateEnemies();
         generatePlayers();
+        test = new BitmapFont();
+        batch = new SpriteBatch();
         Globals.setDebug(false);
     }
 
@@ -61,15 +69,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        //Clear the screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        consumeInput();
-        placeConsumables();
-        placeEnemies();
-        placePlayers();
-        shapeRenderer.end();
+        drawEntities();
+        generatePlayerNumbers();
     }
 
     @Override
@@ -95,6 +98,23 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void drawEntities() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        consumeInput();
+        placeConsumables();
+        placeEnemies();
+        placePlayers();
+        shapeRenderer.end();
+    }
+
+    private void generatePlayerNumbers() {
+        batch.begin();
+        for (Player p : players) {
+            test.draw(batch, String.valueOf(p.getId()), p.x, p.y);
+        }
+        batch.end();
     }
 
     private void enemyChecks(Enemy e) {
@@ -150,12 +170,26 @@ public class GameScreen implements Screen {
         }
     }
 
+    private void checkPlayerAtePlayer(Player p) {
+        if (players.size == 1) return;
+
+        for (int i = 0; i < players.size; i++) {
+            Player pp = players.get(i);
+            if (p.overlaps(pp) && p.radius > pp.radius) {
+                players.removeValue(pp, false);
+                Gdx.app.debug("Player at Player", p.getId() + " ate: " + pp.getId());
+                p.radiusIncrease(pp.radius);
+            }
+        }
+    }
+
     private void consumeInput() {
         Input g = Gdx.input;
 
         for (Player p : players) {
             float newX = p.x;
             float newY = p.y;
+
             switch (p.getId()) {
                 case 1:
                     if (g.isKeyPressed(W_) && g.isKeyPressed(A)) {
@@ -203,7 +237,6 @@ public class GameScreen implements Screen {
                         newX -= 1;
                     }
                     break;
-
                 default:
                     break;
             }
@@ -213,6 +246,7 @@ public class GameScreen implements Screen {
 
     private void playerChecks(Player p) {
         p.depreciate();
+        checkPlayerAtePlayer(p);
         checkPlayerAteEnemy(p);
         checkPlayerAteConsumable(p);
     }
@@ -245,23 +279,39 @@ public class GameScreen implements Screen {
 
     private void checkNewEnemyGeneration() {
         if (enemies.size < E_AMT) {
-            enemies.add(generateNewEnemy());
+            Enemy e = generateNewEnemy();
+            if (e != null) {
+                enemies.add(e);
+            }
         }
     }
 
     private void checkNewConsumableGeneration() {
         if (consumables.size < C_AMT / 2) {
-            consumables.add(generateNewConsumable());
+            Consumable c = generateNewConsumable();
+            if (c != null) {
+                consumables.add(c);
+            }
         }
     }
 
     private Enemy generateNewEnemy() {
         enemyCount++;
+        for (Player p : players) {
+            if (enemyCount > E_AMT + 20) {
+                return null;
+            }
+        }
         return new Enemy(new Vector2(randX(), randY()), enemyCount);
     }
 
     private Consumable generateNewConsumable() {
         consumableCount++;
+        for (Player p : players) {
+            if (consumableCount > C_AMT + 250) {
+                return null;
+            }
+        }
         return new Consumable(new Vector2(randX(), randY()), consumableCount);
     }
 
