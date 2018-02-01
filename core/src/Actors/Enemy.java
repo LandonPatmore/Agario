@@ -1,12 +1,13 @@
 package Actors;
 
+import Utils.Globals;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Enemy extends BaseEntity {
 
-    public Enemy(Vector2 screenPos, String name) {
-        super(screenPos, 10, name);
+    public Enemy(Vector2 screenPos, int name) {
+        super(screenPos, Globals.SIZE, name);
         generateInitialMoveConstants();
     }
 
@@ -15,5 +16,20 @@ public class Enemy extends BaseEntity {
         moveConstantY = MathUtils.random(-1.5f, 1.5f);
     }
 
+    public void reverseX() {
+        setMoveConstantX(-moveConstantX);
+    }
 
+    public void reverseY() {
+        setMoveConstantY(-moveConstantY);
+    }
+
+    public void checkGoingOffScreen() {
+        if (x > W || x < 0) {
+            reverseX();
+        }
+        if (y > H || y < 0) {
+            reverseY();
+        }
+    }
 }

@@ -3,7 +3,7 @@ package Utils;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 
-public class Helper {
+public class Globals {
 
     public static void setDebug(boolean bool) {
         if (bool) {
@@ -16,4 +16,7 @@ public class Helper {
     public static String title = "";
     public static int height = 0;
     public static int width = 0;
+
+    public static final int SIZE = 5;
+    public static final int C_SIZE = 1;
 }

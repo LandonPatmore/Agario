@@ -1,5 +1,6 @@
 package Actors;
 
+import Utils.Globals;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -7,29 +8,38 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class BaseEntity extends Circle {
 
-    // Move constants for the circle that can be dynamically changed
-    public float moveConstantX;
-    public float moveConstantY;
+    //Screen Constraints
+    final int H = Globals.height;
+    final int W = Globals.width;
 
-    // Information about entitiy
-    private final String name;
+    // Move constants for the circle that can be dynamically changed
+    float moveConstantX;
+    float moveConstantY;
+
+    // Identify enemy using int, not string for speed
+    private final int id;
+
+    // For Enemies and Players
+    private int consumables;
+    private int enemies;
 
     // Random color for entity
     public final float R = MathUtils.random();
     public final float G = MathUtils.random();
     public final float B = MathUtils.random();
 
-    BaseEntity(Vector2 position, float radius, String name) {
+    BaseEntity(Vector2 position, float radius, int id) {
         super(position, radius);
-        this.name = name;
+        this.id = id;
         setMoveConstants();
     }
 
-    public String getName() {
-        return name;
+    public int getId() {
+        return id;
     }
 
     private void setMoveConstants() {
@@ -38,11 +48,11 @@ public abstract class BaseEntity extends Circle {
         moveConstantY = MathUtils.random(-1.5f, 1.5f);
     }
 
-    public void setMoveConstantX(float moveConstantX) {
+    void setMoveConstantX(float moveConstantX) {
         this.moveConstantX = moveConstantX;
     }
 
-    public void setMoveConstantY(float moveConstantY) {
+    void setMoveConstantY(float moveConstantY) {
         this.moveConstantY = moveConstantY;
     }
 
@@ -52,11 +62,49 @@ public abstract class BaseEntity extends Circle {
 
         if (probability > 0.99f) {
             if (innerProbability > 0.99f) {
-                setMoveConstantX(MathUtils.random(-10.0f, 10.0f));
-                setMoveConstantY(MathUtils.random(-10.0f, 10.0f));
+                setMoveConstantX(MathUtils.random(-5.0f, 5.0f));
+                setMoveConstantY(MathUtils.random(-5.0f, 5.0f));
             } else {
                 setMoveConstants();
             }
+        }
+    }
+
+    public int getConsumables() {
+        return consumables;
+    }
+
+    public int getEnemies() {
+        return enemies;
+    }
+
+    public void depreciate() {
+        if (radius > 10) {
+            if (radius < 25) {
+                radius -= 0.002f;
+            } else if (radius < 50) {
+                radius -= 0.01f;
+            } else {
+                radius -= 0.030f;
+            }
+        }
+    }
+
+    public void radiusIncrease(float amount) {
+        if (amount == 1) {
+            consumables++;
+            if (consumables < 5) {
+                radius += Math.log(consumables);
+            } else if (consumables < 10) {
+                radius++;
+            } else if (consumables < 20) {
+                radius += 0.5f;
+            } else {
+                radius += 0.2f;
+            }
+        } else {
+            enemies++;
+            radius += (amount * 0.2f);
         }
     }
 
@@ -65,4 +113,6 @@ public abstract class BaseEntity extends Circle {
         x += moveConstantX;
         y += moveConstantY;
     }
+
+
 }
