@@ -118,7 +118,7 @@ public class GameScreen implements Screen {
     }
 
     private void checkAllPlayersEaten() {
-        if (players.size == 0) {
+        if (players.size == 0 || enemies.size == 0 || consumables.size == 0) {
             game.setScreen(new EndScreen(game));
         }
     }
