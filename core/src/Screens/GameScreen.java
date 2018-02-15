@@ -4,6 +4,7 @@ import Actors.Consumable;
 import Actors.Enemy;
 import Actors.Player;
 import Utils.Globals;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -16,6 +17,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
+
+    // Game
+    private final Game game;
 
     // Entities
     private final Array<Consumable> consumables = new Array<>();
@@ -36,7 +40,7 @@ public class GameScreen implements Screen {
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     //Bitmap Font
-    private final BitmapFont test;
+    private final BitmapFont playerName;
     private final SpriteBatch batch;
 
     // Track amount of Entities that have existed
@@ -53,11 +57,12 @@ public class GameScreen implements Screen {
     private final int DN = Input.Keys.DOWN;
     private final int R = Input.Keys.RIGHT;
 
-    public GameScreen() {
+    public GameScreen(Game game) {
+        this.game = game;
         generateConsumables();
         generateEnemies();
         generatePlayers();
-        test = new BitmapFont();
+        playerName = new BitmapFont();
         batch = new SpriteBatch();
         Globals.setDebug(false);
     }
@@ -73,6 +78,7 @@ public class GameScreen implements Screen {
 
         drawEntities();
         generatePlayerNumbers();
+        checkAllPlayersEaten();
     }
 
     @Override
@@ -97,7 +103,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        playerName.dispose();
+        shapeRenderer.dispose();
+        batch.dispose();
     }
 
     private void drawEntities() {
@@ -109,16 +117,23 @@ public class GameScreen implements Screen {
         shapeRenderer.end();
     }
 
+    private void checkAllPlayersEaten() {
+        if (players.size == 0) {
+            game.setScreen(new EndScreen(game));
+        }
+    }
+
     private void generatePlayerNumbers() {
         batch.begin();
         for (Player p : players) {
-            test.draw(batch, String.valueOf(p.getId()), p.x, p.y);
+            playerName.draw(batch, String.valueOf(p.getId()), p.x, p.y);
         }
         batch.end();
     }
 
     private void enemyChecks(Enemy e) {
         e.depreciate();
+        checkEnemyAtePlayer(e);
         checkEnemyAteEnemy(e);
         checkEnemyAteConsumable(e);
         e.checkGoingOffScreen();
@@ -127,6 +142,16 @@ public class GameScreen implements Screen {
     private void moveFunctions(Enemy e) {
         e.changeDirection();
         e.move();
+    }
+
+    private void checkEnemyAtePlayer(Enemy e) {
+        for (Player p : players) {
+            if (e.overlaps(p) && e.radius > p.radius) {
+                players.removeValue(p, false);
+                Gdx.app.debug("Enemy at Player", e.getId() + " ate: " + p.getId());
+                e.radiusIncrease(p.radius);
+            }
+        }
     }
 
     private void checkEnemyAteEnemy(Enemy e) {

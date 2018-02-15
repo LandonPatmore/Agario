@@ -18,5 +18,5 @@ public class Globals {
     public static int width = 0;
 
     public static final int SIZE = 5;
-    public static final int C_SIZE = 1;
+    public static final int C_SIZE = 2;
 }

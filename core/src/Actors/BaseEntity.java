@@ -62,20 +62,12 @@ public abstract class BaseEntity extends Circle {
 
         if (probability > 0.99f) {
             if (innerProbability > 0.99f) {
-                setMoveConstantX(MathUtils.random(-5.0f, 5.0f));
-                setMoveConstantY(MathUtils.random(-5.0f, 5.0f));
+                setMoveConstantX(MathUtils.random(-10.0f, 10.0f));
+                setMoveConstantY(MathUtils.random(-10.0f, 10.0f));
             } else {
                 setMoveConstants();
             }
         }
-    }
-
-    public int getConsumables() {
-        return consumables;
-    }
-
-    public int getEnemies() {
-        return enemies;
     }
 
     public void depreciate() {

@@ -15,7 +15,7 @@ public class DesktopLauncher {
         new LwjglApplication(new Agario(), config);
     }
 
-    static void setConfig() {
+    private static void setConfig() {
         Globals.title = "Agario";
         Globals.height = 800;
         Globals.width = 1200;
